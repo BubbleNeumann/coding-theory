@@ -1,19 +1,28 @@
 import numpy
 
-def sub_lines(matrix, ind_from: int, ind_what: int):
+def sub_lines(matrix, ind_from: int, ind_what: int) -> list:
+    """
+    subtracts lines
+    """
     matrix[ind_from] = list(map(lambda x, y: abs(x-y), matrix[ind_from], matrix[ind_what]))
     return matrix
 
-def get_code_offset(matrix, ind_from: int, ind_what: int):
+def get_code_offset(matrix, ind_from: int, ind_what: int) -> list:
+    """
+    returns the distance between all lines
+    """
     matrix[ind_from] = list(map(lambda x, y: abs(x-y), matrix[ind_from], matrix[ind_what]))
     return len(list(filter(lambda a: a !=1, matrix[ind_from])))
 
 
-def should_sub(matrix, ind_from, leading_1_col):
+def should_sub(matrix, ind_from, leading_1_col) -> bool:
+    """
+    performs a check for the need to subtract a string
+    """
     return matrix[ind_from][leading_1_col] == 1
 
 
-def ref(arr):
+def ref(arr) -> list:
     t = 0
     mass = []
     for i in arr:
@@ -28,7 +37,7 @@ def ref(arr):
     return rez
 
 
-def rref(matrix):
+def rref(matrix) -> list:
     for row_ind in range(len(matrix)):
         leading_1 = 0
         while matrix[row_ind][leading_1] != 1:
@@ -47,6 +56,8 @@ def prepare_matrix(matrix) -> list:
         matrix[i] = list(map(lambda x: x % 2, matrix[i]))
     return matrix
 
+def prepare_vector(vec) -> list:
+    return list(map(lambda x: x % 2, vec))
 
 def mul_vector_by_matrix(vector, matrix) -> list:
     np_vec = numpy.array(vector)
@@ -61,12 +72,38 @@ class LinearCode:
         self.rows = len(matrix)  # number of rows
 
     def s_ref(self) -> None:
-        self.matrix = ref(self.matrix)
+        """
+        transforms matrix to the upper-triangular form
+        """
+        t = 0
+        mass = []
+        for i in self.matrix:
+            for j in self.matrix:
+                if i < j:
+                    t += 1
+            mass.append(t)
+        t = 0
+        rez = [[]]*len(mass)
+        for i in range(len(mass)):
+            rez[mass[i]] = self.matrix[i]
+        self.matrix = rez
 
     def s_rref(self) -> None:
-        self.matrix = rref(self.matrix)
+        """
+        transforms matrix to the reduced upper - triangular form
+        """
+        for row_ind in range(len(self.matrix)):
+            leading_1 = 0
+        while self.matrix[row_ind][leading_1] != 1:
+            leading_1 += 1
+        for row_ind_1 in range(row_ind):
+            if should_sub(self.matrix, row_ind_1, leading_1):
+                self.matrix = sub_lines(self.matrix, row_ind_1, row_ind)
 
-    def get_leading_1s(self):
+    def get_leading_1s(self) -> list:
+        """
+        returns list of leadings cols
+        """
         res = []
         for row_ind in range(len(self.matrix)):
             leading_1 = 0
@@ -76,7 +113,7 @@ class LinearCode:
         return res
 
 
-    def f_ilya(self):
+    def f_ilya(self) -> list:
         """
         get X matrix
         """
@@ -102,7 +139,10 @@ class LinearCode:
         return(temp)
 
 
-    def get_check_matrix(self):
+    def get_check_matrix(self) -> list:
+        """
+        get H matrix
+        """
         X = self.f_ilya()
         I = numpy.eye(len(X[0]), dtype=int).tolist()
         h = []
@@ -120,7 +160,10 @@ class LinearCode:
         return h
 
 
-    def get_min_code_offset(self):
+    def get_min_code_offset(self) -> int:
+        """
+        returns the minimum distance between lines
+        """
         res = []
         for row_ind in range(self.rows):
             for row_ind_1 in range(row_ind+1, self.rows):
