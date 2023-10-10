@@ -1,6 +1,6 @@
 import numpy as np
 from lab1 import sub_lines, mul_vector_by_matrix
-
+import random
 
 
 def prepare_matrix(matrix) -> list:
@@ -43,6 +43,8 @@ class LinearMatrix:
                 for j in range(len(self.x_part[0])): 
                     self.matrix[i].append(self.x_part[i][j]) 
         else:
+            m = cols
+            n = rows
             matrix = [[0 for i in range(m)] for j in range(n)]
             for j in matrix:
                 print(j)
