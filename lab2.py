@@ -26,6 +26,9 @@ def col_sum(matrix, n) -> int:
         res += matrix[i][n]
     return res
 
+def sum_vec(v1: list[int], v2: list[int]) -> list[int]:
+    return [(v1[i] +  v2[i]) % 2 for i in range(len(v1))]
+
 
 
 class LinearMatrix: 
@@ -35,85 +38,58 @@ class LinearMatrix:
         """ 
         self.matrix = np.eye(4 if rows == cols == 0 else rows, dtype=int).tolist() 
         self.H = [] 
+        self.cols = 7 if cols == 0 else cols
+        self.rows = 4 if rows == 0 else rows
         if (rows == cols == 0):
-            self.cols = 7 
-            self.rows = 4 
             self.x_part = [[1, 1, 0], [0, 1, 1], [1, 0, 1], [1, 1, 1]] 
             for i in range(len(self.matrix)): 
                 for j in range(len(self.x_part[0])): 
                     self.matrix[i].append(self.x_part[i][j]) 
+            print(self.matrix)
         else:
-            m = cols
-            n = rows
-            matrix = [[0 for i in range(m)] for j in range(n)]
-            for j in matrix:
-                print(j)
-            o1,o2,o3,o4 = 0,0,0,0
+            flag = True
+            self.x_part = []
+            while flag:
+                k = rows
+                n = cols - rows
+                flag = False
+                x = []
+                for i in range(0, k):
+                    x = []
+                    for i in range(0, n):
+                        if random.random() > 0.5:
+                            x.append(1)
+                        else:
+                            x.append(0)
+                    self.x_part.append(x)
 
-            for i in range(n):
-                for j in range(m):
-                    if(i == j):
-                        matrix[i][j] = 1
-            arr_1 = []
+                for i in range(0, k):
+                    if sum(self.x_part[i]) < 4:
+                        flag = True
 
-            o1 = random.randint(n,m-1)
-            arr_1.append(o1)
-            while(True):
-                o2 = random.randint(n,m-1)
-                if(o1 != o2):
-                    arr_1.append(o2)
-                    break
-            while(True):
-                o3 = random.randint(n,m-1)
-                if(o1 != o3 and o2 != o3):
-                    arr_1.append(o3)
-                    break
-            while(True):
-                o4 = random.randint(n,m-1)
-                if(o1 != o4 and o2 != o4 and o3 != o4):
-                    arr_1.append(o4)
-                    break
-            matrix[0][o1] = 1
-            matrix[0][o2] = 1
-            matrix[0][o3] = 1
-            matrix[0][o4] = 1
-            for i in range(1,n):
-                while True:
-                    k = 0
-                    o1 = random.randint(n,m-1)
-                    while(True):
-                        o2 = random.randint(n,m-1)
-                        if(o1 != o2):
-                            break
-                    while(True):
-                        o3 = random.randint(n,m-1)
-                        if(o1 != o3 and o2 != o3):
-                            break
-                    while(True):
-                        o4 = random.randint(n,m-1)
-                        if(o1 != o4 and o2 != o4 and o3 != o4):
-                            break
-                    if o1 in arr_1:
-                        k += 1
-                    if o2 in arr_1:
-                        k += 1
-                    if o3 in arr_1:
-                        k += 1
-                    if o4 in arr_1:
-                        k += 1
-                    if k == 2:
-                        arr_1.append(o1)
-                        arr_1.append(o2)
-                        arr_1.append(o3)
-                        arr_1.append(o4)
-                        matrix[i][o1] = 1
-                        matrix[i][o2] = 1
-                        matrix[i][o3] = 1
-                        matrix[i][o4] = 1
-                        break
-                self.cols = cols
-                self.rows = rows
-                
+                for i in range(0, k - 1):
+                    for j in range(i + 1, k):
+                        s2 = sum_vec(self.x_part[i], self.x_part[j])
+                        if sum(s2) < 3:
+                            flag = True
+
+                for i in range(0, k - 2):
+                    for j in range(i + 1, k - 1):
+                        for m in range(j + 1, k):
+                            s3 = sum_vec(self.x_part[i], self.x_part[j])
+                            s3 = sum_vec(s3, self.x_part[m])
+                            if sum(s3) < 2:
+                                flag = True
+
+                for i in range(0, k - 3):
+                    for j in range(i + 1, k - 2):
+                        for m in range(j + 1, k - 1):
+                            for l in range(m + 1, k):
+                                s4 = sum_vec(self.x_part[i], self.x_part[j])
+                                s4 = sum_vec(s4, self.x_part[m])
+                                s4 = sum_vec(s4, self.x_part[l])
+                                if sum(s4) < 1:
+                                    flag = True       
  
          
     def __str__(self) -> str: 
@@ -234,7 +210,11 @@ def main():
     print('code word=', code_word, 'code word with mistake=', LinearMatrix.make_mistake(code_word, mistake), 'fixed=', G.fix_word_with_one_mistake(LinearMatrix.make_mistake(code_word, mistake)))
     print('G=', G)
     print('H=', H)
-
+    # task 2
+    G = LinearMatrix(11, 4)
+    for i in G.matrix:
+        print(i)
+    H = G.createCheckMatrix()
     mistake[1] = 1
     print('code word=', code_word, 'code word with mistake=', prepare_vector(LinearMatrix.make_mistake(code_word, mistake)), 'fixed=', prepare_vector(G.fix_word_with_two_mistakes(LinearMatrix.make_mistake(code_word, mistake))))
     syndroms = G.gen_syndrom(dim=2)
